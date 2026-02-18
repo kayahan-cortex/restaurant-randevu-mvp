@@ -35,3 +35,42 @@ model Reservation {
   @@index([reservedAt])
   @@index([tableId, reservedAt])
 }
+
+model Conversation {
+  id          String   @id @default(cuid())
+  waUserId    String   @unique
+  state       String   @default("idle")
+  customerName String?
+  partySize   Int?
+  reservedAt  DateTime?
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  messages Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  provider       String       @default("whatsapp")
+  direction      String
+  externalId     String?
+  waUserId       String
+  body           String
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+
+  @@index([waUserId, createdAt])
+  @@unique([provider, externalId])
+}
+
+model WebhookEvent {
+  id         String   @id @default(cuid())
+  provider   String
+  externalId String
+  payload    String
+  createdAt  DateTime @default(now())
+
+  @@unique([provider, externalId])
+}
