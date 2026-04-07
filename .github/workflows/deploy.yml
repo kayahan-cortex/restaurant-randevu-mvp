@@ -1,0 +1,38 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 3.65.20.111
+          username: kayahan
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/kayahan/randevu
+
+            # Pull latest changes
+            git pull origin main
+
+            # Install dependencies
+            npm ci
+
+            # Generate Prisma client
+            npx prisma generate
+
+            # Run database migrations
+            npx prisma migrate deploy
+
+            # Build the application
+            npm run build
+
+            # Restart with PM2
+            pm2 restart randevu --update-env || pm2 start npm --name "randevu" -- start
+            pm2 save
