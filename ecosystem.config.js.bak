@@ -4,7 +4,7 @@ module.exports = {
       name: "randevu",
       script: "npm",
       args: "start",
-      cwd: "/var/www/html/rezervasyon",
+      cwd: "/home/kayahan/randevu",
       env: {
         NODE_ENV: "production",
         PORT: 3000,
