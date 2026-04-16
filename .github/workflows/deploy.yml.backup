@@ -13,14 +13,16 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          fingerprint: "" # Host key kontrolünü atlamak için
+          script_stop: true
           script: |
-            cd /var/www/html/rezervasyon
+            cd /var/www/html/randevu
             git pull origin main
-            npm ci
+            npm install
             npx prisma generate
-            npx prisma migrate deploy
+            npx prisma db push --accept-data-loss
             npm run build
             pm2 restart randevu
